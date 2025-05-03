@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Story Weaver</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            margin: 0;
+            padding: 40px;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            line-height: 1.8;
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at 50% 50%, rgba(75, 0, 130, 0.4) 0%, rgba(138, 43, 226, 0.3) 20%, transparent 80%);
+            opacity: 0.6;
+            animation: nebulaDrift 25s ease-in-out infinite;
+            z-index: -1;
+            transform: translate(-25%, -25%);
+        }
+
+        @keyframes nebulaDrift {
+            0% { transform: translate(-25%, -25%) rotate(0deg) scale(1); opacity: 0.6; }
+            50% { transform: translate(-20%, -30%) rotate(15deg) scale(1.15); opacity: 0.8; }
+            100% { transform: translate(-25%, -25%) rotate(0deg) scale(1); opacity: 0.6; }
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffcc00;
+            margin-bottom: 30px;
+            font-size: 3em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 8px rgba(255, 204, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 8px rgba(255, 204, 0, 0.5); }
+            to { text-shadow: 2px 2px 15px rgba(255, 204, 0, 0.8); }
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        label {
+            margin-bottom: 8px;
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        #theme-label { color: #00FFFF; }
+        #length-label { color: #00FF00; }
+        #uiTheme-label { color: #FF00FF; }
+
+        input, select {
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        #theme {
+            color: #00FFFF;
+            border-color: #00FFFF;
+        }
+        #length {
+            color: #00FF00;
+            border-color: #00FF00;
+        }
+        #uiTheme {
+            color: #FF00FF;
+            border-color: #FF00FF;
+        }
+
+        input:focus, select:focus {
+            border-color: #ffcc00;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            outline: none;
+        }
+
+        .suggestions {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #generateBtn { background: linear-gradient(45deg, #ffcc00, #ff9900); color: #1a1a2e; }
+        #generateBtn:hover { background: linear-gradient(45deg, #ff9900, #ff6600); }
+        #clearBtn { background: linear-gradient(45deg, #ff3333, #cc0000); color: #e0e0e0; }
+        #clearBtn:hover { background: linear-gradient(45deg, #cc0000, #990000); }
+        #surpriseBtn { background: linear-gradient(45deg, #00ccff, #0066ff); color: #e0e0e0; }
+        #surpriseBtn:hover { background: linear-gradient(45deg, #0066ff, #0033cc); }
+        #exportBtn { background: linear-gradient(45deg, #33cc33, #009900); color: #e0e0e0; }
+        #exportBtn:hover { background: linear-gradient(45deg, #009900, #006600); }
+        #narrateBtn { background: linear-gradient(45deg, #ff66cc, #cc0099); color: #e0e0e0; }
+        #narrateBtn:hover { background: linear-gradient(45deg, #cc0099, #990066); }
+        #narrateBtn.stop { background: linear-gradient(45deg, #cc0099, #ff66cc); }
+
+        .suggest-btn {
+            padding: 8px 15px;
+            margin-top: 5px;
+            background: linear-gradient(45deg, #6a00cc, #8a2be2);
+            color: #e0e0e0;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .suggest-btn:hover {
+            background: linear-gradient(45deg, #8a2be2, #a100ff);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        #output {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 25px;
+            border-radius: 12px;
+            min-height: 250px;
+            max-height: 450px;
+            overflow-y: auto;
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.1em;
+            line-height: 1.9;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #output .story-title {
+            color: #ff66cc;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 1px 1px 5px rgba(255, 102, 204, 0.7);
+            animation: titleGlow 1.5s ease-in-out infinite alternate;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 1px 1px 5px rgba(255, 102, 204, 0.7); }
+            to { text-shadow: 1px 1px 15px rgba(255, 102, 204, 1); }
+        }
+
+        #progressBar {
+            width: 0%;
+            height: 5px;
+            background: #ffcc00;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .theme-light {
+            background: #f0f0f5;
+            color: #1a1a2e;
+        }
+
+        .theme-light .container {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-light #output {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #1a1a2e;
+        }
+
+        .theme-light #output .story-title {
+            color: #ff66cc;
+            text-shadow: 1px 1px 5px rgba(255, 102, 204, 0.7);
+        }
+
+        .theme-light #theme { color: #00FFFF; border-color: #00FFFF; }
+        .theme-light #length { color: #00FF00; border-color: #00FF00; }
+        .theme-light #uiTheme { color: #FF00FF; border-color: #FF00FF; }
+        .theme-light #theme-label { color: #00FFFF; }
+        .theme-light #length-label { color: #00FF00; }
+        .theme-light #uiTheme-label { color: #FF00FF; }
+
+        .theme-light .suggest-btn {
+            background: linear-gradient(45deg, #6a00cc, #8a2be2);
+            color: #e0e0e0;
+        }
+        .theme-light .suggest-btn:hover {
+            background: linear-gradient(45deg, #8a2be2, #a100ff);
+        }
+
+        @media (max-width: 600px) {
+            .controls { grid-template-columns: 1fr; }
+            h1 { font-size: 2.5em; }
+            button { padding: 12px 20px; font-size: 1em; }
+            .suggest-btn { padding: 6px 12px; font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Story Weaver</h1>
+
+        <div class="controls">
+            <div class="input-group">
+                <label for="word1">Character/Thing</label>
+                <input type="text" id="word1" placeholder="e.g., Warrior">
+                <div class="suggestions">Try: Mage, Explorer, Ghost</div>
+                <button class="suggest-btn" onclick="suggestWord('word1')">Suggest</button>
+            </div>
+            <div class="input-group">
+                <label for="word2">Setting/Mood</label>
+                <input type="text" id="word2" placeholder="e.g., Forest">
+                <div class="suggestions">Try: City, Storm, Void</div>
+                <button class="suggest-btn" onclick="suggestWord('word2')">Suggest</button>
+            </div>
+            <div class="input-group">
+                <label for="word3">Object/Event</label>
+                <input type="text" id="word3" placeholder="e.g., Sword">
+                <div class="suggestions">Try: Ritual, Star, Key</div>
+                <button class="suggest-btn" onclick="suggestWord('word3')">Suggest</button>
+            </div>
+            <div class="input-group">
+                <label for="word4">Action/Concept</label>
+                <input type="text" id="word4" placeholder="e.g., Quest">
+                <div class="suggestions">Try: Betrayal, Hope, Flight</div>
+                <button class="suggest-btn" onclick="suggestWord('word4')">Suggest</button>
+            </div>
+            <div class="input-group">
+                <label for="theme" id="theme-label">Story Theme</label>
+                <select id="theme" onchange="updateSuggestions()">
+                    <option value="all">All Themes</option>
+                    <option value="fantasy">Fantasy/Adventure</option>
+                    <option value="mystery">Mystery/Intrigue</option>
+                    <option value="scifi">Sci-Fi/Futuristic</option>
+                    <option value="horror">Horror/Dark</option>
+                    <option value="romance">Romance/Drama</option>
+                    <option value="historical">Historical/Epic</option>
+                    <option value="whimsical">Whimsical/Fun</option>
+                    <option value="nature">Nature/Exploration</option>
+                    <option value="abstract">Abstract/Experimental</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="length" id="length-label">Story Length</label>
+                <select id="length">
+                    <option value="short">Short</option>
+                    <option value="medium">Medium</option>
+                    <option value="long">Long</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="uiTheme" id="uiTheme-label">UI Theme</label>
+                <select id="uiTheme" onchange="toggleTheme()">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="generateBtn" onclick="generateStory()">Generate Story</button>
+            <button id="surpriseBtn" onclick="surpriseMe()">Surprise Me</button>
+            <button id="exportBtn" onclick="exportStory()">Export Story</button>
+            <button id="narrateBtn" onclick="toggleNarration()">Narrate Story</button>
+            <button id="clearBtn" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div id="output">Your story will appear here...</div>
+        <div id="progressBar"></div>
+    </div>
+
+    <script>
+        const storyTemplates = {
+            fantasy: [
+                "In a {adj1} land far away, {words[0]} looked for the famous {words[1]} across big, wild places full of surprises and dangers. One day, as the sun went down behind tall hills, {words[2]} shone in the distance, like a light showing an old promise. Through tough mountains and loud rivers, {words[0]} guided a group of tired friends, all excited about {words[3]}. Finally, they found a special valley where their hard work turned into a happy ending.",
+                "Beneath a {adj2} sky, {words[0]} ventured into the {words[1]}, seeking the lost {words[2]} rumored to hold ancient power. Shadows danced as {words[3]} called them deeper into forgotten ruins, where secrets whispered in the wind. With courage and cunning, they unraveled the mystery, forging a legend that echoed through time."
+            ],
+            mystery: [
+                "Near the big {words[0]}, {words[1]} started to figure out the strange {words[2]}, finding clues that fit together like a tricky puzzle. Stories spread fast, leading them to old papers hidden away for years. Quiet voices talked about {words[3]}, a name that made people nervous. In the end, they learned the truth, and it surprised everyone in the town.",
+                "In the {adj3} streets of {words[0]}, {words[1]} uncovered the enigma of {words[2]}, piecing together fragments of a long-buried tale. Whispers of {words[3]} led them through dusty archives and shadowed alleys, until the final revelation turned their world upside down."
+            ],
+            scifi: [
+                "On a {words[0]} planet near a fading star, {words[1]} ran the {words[2]} with tools way smarter than anything old. {words[3]} moved fast through the wires, messing things up across the empty land. Following the problem through metal paths and bright lights, they found a message coming from space, showing a way to new places.",
+                "Aboard the {adj4} {words[0]}, {words[1]} tinkered with the {words[2]}, a machine pulsing with unknown energy. {words[3]} sparked chaos across the galaxy, drawing them into a web of stars and signals. In the end, they decoded a cosmic truth that changed everything."
+            ],
+            horror: [
+                "Under the {words[0]} where light didn’t go, {words[1]} moved inside the {words[2]}, feeling heavy and scary. Shadows jumped around, wanting {words[3]} like it was food. They ran through tight, dark halls, but morning showed only an empty place, quiet and waiting.",
+                "Within the {adj5} depths of {words[0]}, {words[1]} stumbled upon the {words[2]}, its presence chilling the air. {words[3]} loomed like a curse, pulling them into a nightmare of twisted corridors and unseen eyes. Dawn broke, but the terror lingered in silence."
+            ],
+            romance: [
+                "Under a {words[0]} moon shining on the water, {words[1]} met {words[2]} by the quiet beach where time felt slow. {words[3]} started a love that grew even when things got hard, warm and strong. A worn-out letter pulled them apart, but they still hoped to be together again.",
+                "Amid the {adj1} glow of {words[0]}, {words[1]} found {words[2]} in a moment of stillness, their hearts entwined by {words[3]}. Distance tested their bond, yet every glance and touch wove a tapestry of longing that time couldn’t unravel."
+            ],
+            historical: [
+                "In the time of {words[0]}, when big fights filled the sky, {words[1]} stood up with the {words[2]} during a loud war. Their {words[3]} brought tired people together, a strong call across broken lands. From dirt and struggle, they built something big to remember them by.",
+                "During the {adj2} reign of {words[0]}, {words[1]} wielded the {words[2]} to unite a fractured kingdom. {words[3]} rallied the weary, forging a legacy amid battles and betrayals that history would never forget."
+            ],
+            whimsical: [
+                "A {words[0]} played with {words[1]} on top of the {words[2]}, spinning under a bright sky at sunrise. For {words[3]}, they kept going, their laughs making everyone happy. Every jump and turn told a fun story across the green hills.",
+                "In a {adj3} world, {words[0]} danced with {words[1]} around the {words[2]}, a whirlwind of joy and wonder. {words[3]} fueled their antics, painting the air with giggles and dreams that floated high above the ordinary."
+            ],
+            nature: [
+                "Deep in the {words[0]} where wild places went on forever, {words[1]} followed the {words[2]} through thick woods and quiet mountains. With {words[3]} to guide them, they climbed high places touched by clouds, amazed by the beauty. Every step felt like a song to the land.",
+                "Across the {adj4} expanse of {words[0]}, {words[1]} tracked the {words[2]}, its call echoing through vast canyons. {words[3]} pushed them onward, revealing nature’s secrets in every leaf and stone, a journey of awe and discovery."
+            ],
+            abstract: [
+                "The {words[0]} moved with {words[1]}, a {words[2]} of {words[3]} spreading through an empty space where things got blurry. Light broke into pieces, time feeling long and thin. Shadows played where shapes went away, a mix of wild ideas.",
+                "In a {adj5} haze, {words[0]} merged with {words[1]}, the {words[2]} pulsing with {words[3]}. Reality bent and twisted, colors bleeding into silence, a dreamscape where thoughts collided and dissolved into the void."
+            ]
+        };
+
+        const adjChoices = {
+            adj1: ["big", "quiet", "old", "pretty", "dark", "happy", "wild", "bright"],
+            adj2: ["calm", "windy", "busy", "scary", "shiny", "sad", "soft", "deep"],
+            adj3: ["far", "old", "new", "cold", "hot", "wide", "bright", "small"],
+            adj4: ["dark", "strange", "long", "quiet", "loud", "empty", "full", "wet"],
+            adj5: ["warm", "cool", "fast", "slow", "strong", "weak", "clear", "soft"]
+        };
+
+        const nounChoices = {
+            noun1: ["ideas", "strength", "truth", "help", "luck", "fun", "rest", "news"],
+            noun2: ["friend", "animal", "person", "leader", "traveler", "worker", "shadow", "helper"]
+        };
+
+        const themeWordPools = {
+            fantasy: { word1: ["Knight", "Wizard"], word2: ["Castle", "Realm"], word3: ["Sword", "Gem"], word4: ["Quest", "Magic"] },
+            mystery: { word1: ["Detective", "Shadow"], word2: ["Mansion", "Fog"], word3: ["Clue", "Letter"], word4: ["Search", "Reveal"] },
+            scifi: { word1: ["Astronaut", "Android"], word2: ["Space", "Ship"], word3: ["Device", "Signal"], word4: ["Explore", "Discover"] },
+            horror: { word1: ["Ghost", "Monster"], word2: ["Grave", "Dark"], word3: ["Curse", "Blood"], word4: ["Fear", "Haunt"] },
+            romance: { word1: ["Lover", "Poet"], word2: ["Garden", "Night"], word3: ["Rose", "Letter"], word4: ["Love", "Yearn"] },
+            historical: { word1: ["King", "Soldier"], word2: ["Empire", "War"], word3: ["Crown", "Battle"], word4: ["Rule", "Conquer"] },
+            whimsical: { word1: ["Fairy", "Clown"], word2: ["Cloud", "Circus"], word3: ["Wand", "Balloon"], word4: ["Dance", "Laugh"] },
+            nature: { word1: ["Ranger", "Beast"], word2: ["Forest", "Peak"], word3: ["River", "Stone"], word4: ["Hunt", "Climb"] },
+            abstract: { word1: ["Echo", "Void"], word2: ["Dream", "Flux"], word3: ["Pulse", "Form"], word4: ["Shift", "Fade"] }
+        };
+
+        let isNarrating = false;
+
+        function updateSuggestions() {
+            const theme = document.getElementById('theme').value;
+            const pools = themeWordPools[theme] || themeWordPools.fantasy;
+            document.querySelector('#word1 + .suggestions').innerText = `Try: ${pools.word1.join(', ')}`;
+            document.querySelector('#word2 + .suggestions').innerText = `Try: ${pools.word2.join(', ')}`;
+            document.querySelector('#word3 + .suggestions').innerText = `Try: ${pools.word3.join(', ')}`;
+            document.querySelector('#word4 + .suggestions').innerText = `Try: ${pools.word4.join(', ')}`;
+        }
+
+        function suggestWord(inputId) {
+            const theme = document.getElementById('theme').value;
+            const pools = themeWordPools[theme] || themeWordPools.fantasy;
+            const pool = pools[inputId];
+            const randomWord = pool[Math.floor(Math.random() * pool.length)];
+            document.getElementById(inputId).value = randomWord;
+        }
+
+        function generateStory() {
+            const words = [
+                document.getElementById('word1').value || "unknown",
+                document.getElementById('word2').value || "unknown",
+                document.getElementById('word3').value || "unknown",
+                document.getElementById('word4').value || "unknown"
+            ].map(word => word.trim() || "unknown"); // Ensure no empty strings
+
+            if (words.every(word => word === "unknown")) {
+                document.getElementById('output').innerHTML = "Please enter at least one valid word!";
+                return;
+            }
+
+            const theme = document.getElementById('theme').value;
+            const length = document.getElementById('length').value;
+            let templates = theme === 'all' ? Object.values(storyTemplates).flat() : storyTemplates[theme];
+            let story = templates[Math.floor(Math.random() * templates.length)];
+
+            // Append additional text based on length
+            if (length === 'medium') {
+                story += "\n\nWith each passing moment, {words[0]} felt the pull of {words[1]} grow stronger, its mysteries unfolding like petals in the dawn. The weight of {words[2]} pressed against their senses, a constant reminder of {words[3]} driving them forward. The path twisted through {adj1} landscapes, revealing hidden wonders and forgotten tales. {words[0]} paused, gazing at the horizon where {words[1]} shimmered, a beacon of hope amid the chaos.";
+            } else if (length === 'long') {
+                story += "\n\nWith each passing moment, {words[0]} felt the pull of {words[1]} grow stronger, its mysteries unfolding like petals in the dawn. The weight of {words[2]} pressed against their senses, a constant reminder of {words[3]} driving them ever forward into the unknown abyss of fate. Beyond the horizon, {words[1]} stretched into eternity, whispering tales of {words[2]} lost to time, its echoes stirring the air with a haunting resonance. The journey led through {adj2} valleys and {adj3} peaks, where every step uncovered layers of history buried beneath the earth. {words[0]} pressed on, their resolve hardened by the promise of {words[3]}, until the {adj4} expanse of {words[1]} revealed a truth that reshaped their destiny.";
+            }
+
+            // Replace placeholders step-by-step
+            for (let i = 0; i < 4; i++) {
+                const regex = new RegExp(`\\{words\\[${i}\\]\\}`, 'g');
+                story = story.replace(regex, words[i]);
+            }
+
+            for (const [key, options] of Object.entries(adjChoices)) {
+                const regex = new RegExp(`\\{${key}\\}`, 'g');
+                const randomAdj = options[Math.floor(Math.random() * options.length)];
+                story = story.replace(regex, randomAdj);
+            }
+
+            for (const [key, options] of Object.entries(nounChoices)) {
+                const regex = new RegExp(`\\{${key}\\}`, 'g');
+                const randomNoun = options[Math.floor(Math.random() * options.length)];
+                story = story.replace(regex, randomNoun);
+            }
+
+            const title = generateTitle(theme, words);
+            story = `<span class="story-title">${title}</span>\n\n${story}`;
+
+            typeWriteStory(story);
+            saveStory(story);
+        }
+
+        function generateTitle(theme, words) {
+            const prefixes = {
+                fantasy: "The Quest for",
+                mystery: "The Secret of",
+                scifi: "Beyond the",
+                horror: "The Curse of",
+                romance: "A Love in",
+                historical: "The Rise of",
+                whimsical: "The Dance of",
+                nature: "Echoes of",
+                abstract: "Fragments of"
+            };
+            const prefix = prefixes[theme] || "The Tale of";
+            const mainWord = words[2];
+            const secondaryWord = words[1];
+            return `${prefix} ${mainWord} in ${secondaryWord}`;
+        }
+
+        function typeWriteStory(text) {
+            const output = document.getElementById('output');
+            const progressBar = document.getElementById('progressBar');
+            output.innerHTML = '';
+            let i = 0;
+            progressBar.style.width = '0%';
+
+            const textArray = text.split('').map(char => (char === '\n' ? '<br>' : char));
+
+            function type() {
+                if (i < textArray.length) {
+                    output.innerHTML = textArray.slice(0, i + 1).join('');
+                    i++;
+                    progressBar.style.width = `${(i / textArray.length) * 100}%`;
+                    setTimeout(type, 20);
+                }
+            }
+            type();
+        }
+
+        function surpriseMe() {
+            const theme = document.getElementById('theme').value;
+            const pools = themeWordPools[theme] || themeWordPools.fantasy;
+            document.getElementById('word1').value = pools.word1[Math.floor(Math.random() * pools.word1.length)];
+            document.getElementById('word2').value = pools.word2[Math.floor(Math.random() * pools.word2.length)];
+            document.getElementById('word3').value = pools.word3[Math.floor(Math.random() * pools.word3.length)];
+            document.getElementById('word4').value = pools.word4[Math.floor(Math.random() * pools.word4.length)];
+            generateStory();
+        }
+
+        function exportStory() {
+            const text = document.getElementById('output').innerText;
+            if (text === "Your story will appear here..." || text === "Please enter at least one valid word!") return;
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'story.txt';
+            link.click();
+        }
+
+        function toggleNarration() {
+            const narrateBtn = document.getElementById('narrateBtn');
+            const text = document.getElementById('output').innerText;
+
+            if (text === "Your story will appear here..." || text === "Please enter at least one valid word!") return;
+
+            if (isNarrating) {
+                speechSynthesis.cancel();
+                isNarrating = false;
+                narrateBtn.innerText = "Narrate Story";
+                narrateBtn.classList.remove('stop');
+            } else {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.onend = () => {
+                    isNarrating = false;
+                    narrateBtn.innerText = "Narrate Story";
+                    narrateBtn.classList.remove('stop');
+                };
+                speechSynthesis.speak(utterance);
+                isNarrating = true;
+                narrateBtn.innerText = "Stop Narration";
+                narrateBtn.classList.add('stop');
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('word1').value = '';
+            document.getElementById('word2').value = '';
+            document.getElementById('word3').value = '';
+            document.getElementById('word4').value = '';
+            document.getElementById('output').innerText = 'Your story will appear here...';
+            document.getElementById('progressBar').style.width = '0%';
+            if (isNarrating) {
+                speechSynthesis.cancel();
+                isNarrating = false;
+                document.getElementById('narrateBtn').innerText = "Narrate Story";
+                document.getElementById('narrateBtn').classList.remove('stop');
+            }
+            localStorage.removeItem('lastStory');
+        }
+
+        function saveStory(story) {
+            try {
+                localStorage.setItem('lastStory', story);
+                console.log('Story saved successfully to localStorage');
+            } catch (e) {
+                console.error('Failed to save story to localStorage:', e);
+            }
+        }
+
+        function loadStory() {
+            const savedStory = localStorage.getItem('lastStory');
+            if (savedStory) {
+                document.getElementById('output').innerHTML = savedStory;
+                document.getElementById('progressBar').style.width = '100%';
+            } else {
+                document.getElementById('output').innerText = 'Your story will appear here...';
+            }
+        }
+
+        function toggleTheme() {
+            const theme = document.getElementById('uiTheme').value;
+            document.body.classList.toggle('theme-light', theme === 'light');
+            document.body.classList.toggle('theme-dark', theme === 'dark');
+        }
+
+        window.onload = loadStory;
+    </script>
+</body>
+</html>
