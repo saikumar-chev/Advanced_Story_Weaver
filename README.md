@@ -19,7 +19,7 @@ Advanced_Story_Weaver is an interactive web application that enables users to cr
 ## Installation
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/advanced-story-weaver.git
+   git clone https://github.com/saikumar-chev/advanced-story-weaver.git
    ```
 2. **Navigate to the Project Directory**:
    ```bash
